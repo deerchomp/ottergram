@@ -5,6 +5,9 @@ var THUMBNAIL_LINK_SELECTOR = '[data-image-role="trigger"]';
 var HIDDEN_DETAIL_CLASS = 'hidden-detail';
 var TINY_EFFECT_CLASS = 'is-tiny';
 var ESC_KEY = 27;
+var NEXT_IMAGE_SELECTOR = "[button-role=\"next\"]";
+var PREVIOUS_IMAGE_SELECTOR = "[button-role=\"previous\"]";
+var CLICKED_THUMBNAIL_INDEX = 0;
 
 function setDetails(imageUrl, titleText) {
     'use strict';
@@ -77,7 +80,63 @@ function initializeEvents() {
     'use strict';
     var thumbnails = getThumbNailsArray();
     thumbnails.forEach(addThumbClickHandler);
+
+    for(var i=0; i < thumbnails.length; i++) {
+        thumbnails[i].addEventListener("click", trackClickedThumbnailIndexHandler(i));
+    }
+
+    var nextButton = document.querySelector(NEXT_IMAGE_SELECTOR);
+
+    nextButton.addEventListener("click", function() {
+        imageNext();
+    });
+
+    var previousButton = document.querySelector(PREVIOUS_IMAGE_SELECTOR);
+    previousButton.addEventListener("click", function() {
+        imagePrevious();
+    });
+
     addKeyPressHandler();
 }
 
+function getThumbnailsArray() {
+  "use strict";
+  var thumbnails = document.querySelectorAll(THUMBNAIL_LINK_SELECTOR);
+  var thumbnailsArray = [].slice.call(thumbnails);
+  return thumbnailsArray;
+}
+
+function trackClickedThumbnailIndexHandler(index){
+  "use strict";
+  return function(){
+    CLICKED_THUMBNAIL_INDEX = index;
+  };
+}
+
+function imageNext() {
+  "use strict";
+  var thumbnails = getThumbnailsArray();
+
+  CLICKED_THUMBNAIL_INDEX = CLICKED_THUMBNAIL_INDEX + 1;
+  if (CLICKED_THUMBNAIL_INDEX < thumbnails.length) {
+    setDetailsFromThumb(thumbnails[CLICKED_THUMBNAIL_INDEX]);
+  }
+  else {
+    CLICKED_THUMBNAIL_INDEX = 0;
+    setDetailsFromThumb(thumbnails[CLICKED_THUMBNAIL_INDEX]);
+  }
+}
+
+function imagePrev() {
+  "use strict";
+  var thumbnails = getThumbnailsArray();
+
+  if (CLICKED_THUMBNAIL_INDEX > 0) {
+    CLICKED_THUMBNAIL_INDEX--;
+  }
+  else {
+    CLICKED_THUMBNAIL_INDEX = thumbnails.length - 1;
+  }
+  setDetailsFromThumb(thumbnails[CLICKED_THUMBNAIL_INDEX]);
+}
 initializeEvents();
